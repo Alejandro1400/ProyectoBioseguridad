@@ -1,52 +1,67 @@
 import tkinter as tk
 
-def abrir_ventana(ventana):
-    ventana_principal.withdraw()  # Ocultar ventana principal
-    ventana.deiconify()          # Mostrar ventana nueva
+class Interfaz:
+    def __init__(self, ventana):
+        self.ventana = ventana
+        self.ventana.title("Interfaz con Botones")
+        self.ventana.geometry("400x300")
 
-def escanear():
-    print("Escaneando en la ventana 1...")
+        self.boton1 = tk.Button(self.ventana, text="Escanear", command=self.abrir_ventana1)
+        self.boton2 = tk.Button(self.ventana, text="Ingresar invitado", command=self.abrir_ventana2)
+        self.boton3 = tk.Button(self.ventana, text="Historial de entradas", command=self.abrir_ventana3)
+        
+        self.boton1.pack(pady=10)
+        self.boton2.pack(pady=5)
+        self.boton3.pack(pady=5)
+        
+    def abrir_ventana1(self):
+        self.ventana.withdraw()
+        ventana1 = tk.Toplevel(self.ventana)
+        ventana1.title("Ventana 1")
+        ventana1.geometry("400x300")
+        
+        boton_escanear = tk.Button(ventana1, text="Escanear", command=self.escanear)
+        boton_volver1 = tk.Button(ventana1, text="Volver", command=lambda: self.volver_a_principal(ventana1))
+        
+        boton_escanear.pack(pady=10)
+        boton_volver1.pack(pady=5)
+    
+    def abrir_ventana2(self):
+        self.ventana.withdraw()
+        ventana2 = tk.Toplevel(self.ventana)
+        ventana2.title("Ventana 2")
+        ventana2.geometry("400x300")
+        
+        mensaje2 = tk.Label(ventana2, text="Ingresar Invitado")
+        boton_volver2 = tk.Button(ventana2, text="Volver", command=lambda: self.volver_a_principal(ventana2))
+        
+        mensaje2.pack(pady=20)
+        boton_volver2.pack(pady=5)
+    
+    def abrir_ventana3(self):
+        self.ventana.withdraw()
+        ventana3 = tk.Toplevel(self.ventana)
+        ventana3.title("Ventana 3")
+        ventana3.geometry("400x300")
+        
+        mensaje3 = tk.Label(ventana3, text="Historial de entradas")
+        boton_volver3 = tk.Button(ventana3, text="Volver", command=lambda: self.volver_a_principal(ventana3))
+        
+        mensaje3.pack(pady=20)
+        boton_volver3.pack(pady=5)
+    
+    def escanear(self):
+        print("Escaneando en la ventana 1...")
+    
+    def volver_a_principal(self, ventana):
+        ventana.withdraw()
+        self.ventana.deiconify()
+    
+    def main(self):
+        self.ventana.mainloop()
 
-# Crear la ventana principal
-ventana_principal = tk.Tk()
-ventana_principal.title("Interfaz con Botones")
 
-# Función para volver a la ventana principal
-def volver_a_principal(ventana):
-    ventana.withdraw()            # Ocultar ventana actual
-    ventana_principal.deiconify() # Mostrar ventana principal
-
-# Ventana 1
-ventana1 = tk.Toplevel()
-ventana1.title("Ventana 1")
-boton_escanear = tk.Button(ventana1, text="Escanear", command=escanear)
-boton_volver1 = tk.Button(ventana1, text="Volver", command=lambda: volver_a_principal(ventana1))
-boton_escanear.pack(pady=10)
-boton_volver1.pack(pady=5)
-
-# Ventana 2
-ventana2 = tk.Toplevel()
-ventana2.title("Ventana 2")
-mensaje2 = tk.Label(ventana2, text="Ingresar Invitado")
-mensaje2.pack(pady=20)
-boton_volver2 = tk.Button(ventana2, text="Volver", command=lambda: volver_a_principal(ventana2))
-boton_volver2.pack(pady=5)
-
-# Ventana 3
-ventana3 = tk.Toplevel()
-ventana3.title("Ventana 3")
-mensaje3 = tk.Label(ventana3, text="Historial de entradas")
-mensaje3.pack(pady=20)
-boton_volver3 = tk.Button(ventana3, text="Volver", command=lambda: volver_a_principal(ventana3))
-boton_volver3.pack(pady=5)
-
-# Botones en la ventana principal
-boton1 = tk.Button(ventana_principal, text="Escanear", command=lambda: abrir_ventana(ventana1))
-boton2 = tk.Button(ventana_principal, text="Ingresar invitado", command=lambda: abrir_ventana(ventana2))
-boton3 = tk.Button(ventana_principal, text="Historial de entradas", command=lambda: abrir_ventana(ventana3))
-boton1.pack(pady=10)
-boton2.pack(pady=5)
-boton3.pack(pady=5)
-
-# Iniciar el bucle principal de la interfaz gráfica
-ventana_principal.mainloop()
+if __name__ == "__main__":
+    ventana_principal = tk.Tk()
+    app = Interfaz(ventana_principal)
+    app.main()

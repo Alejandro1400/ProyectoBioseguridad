@@ -1,10 +1,10 @@
 class Zona:
-    def __init__(self, nombre, descripcion, animales, restricciones, acceso_usuarios):
+    def __init__(self, nombre, descripcion, animales, restricciones, roles_permitidos):
         self.nombre = nombre
         self.descripcion = descripcion
         self.animales = animales
         self.restricciones = restricciones
-        self.acceso_usuarios = acceso_usuarios
+        self.roles_permitidos = roles_permitidos
 
 # Definir zonas con acceso por rol
 zona_a = Zona("Zona A", "Descripción de la Zona A", ["Leones", "Elefantes"], ["No alimentar a los animales"], ["empleado", "invitado"])

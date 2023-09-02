@@ -4,6 +4,7 @@ import random
 import time
 from zonas import zonas  # Importa las zonas desde el archivo zonas.py
 from usuarios import usuarios  # Importa los usuarios desde el archivo usuarios.py
+from database import main as database_main
 from datetime import datetime
 
 class BarcodeScanner:
@@ -17,7 +18,7 @@ class BarcodeScanner:
         user = next((user for user in usuarios if user.id == barcode_data), None)
         if user:
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            allowed_zones = [zona.nombre for zona in self.zonas if user.rol in zona.acceso_usuarios]
+            allowed_zones = [zona.nombre for zona in self.zonas if user.rol in zona.roles_permitidos]
 
             if selected_zona.nombre in allowed_zones:
                 permiso = "Sí"
@@ -74,5 +75,6 @@ class BarcodeScanner:
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
+    database_main()
     scanner = BarcodeScanner(zonas)
     scanner.run()
