@@ -1,9 +1,8 @@
 class Usuario:
-    def __init__(self, id, nombre, rol, zonas_permiso):
+    def __init__(self, id, nombre, rol):
         self.id = id
         self.nombre = nombre
         self.rol = rol
-        self.zonas_permiso = zonas_permiso
 
 # Definir usuarios
 usuario1 = Usuario("051111407592", "Juan", "empleado", ["Zona A", "Zona B"])
