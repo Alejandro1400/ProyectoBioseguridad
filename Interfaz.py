@@ -1,5 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
+#Importar instancia de clase usuario
+from usuarios import Usuario
+#Importar instancia de clase zona
+from zonas import Zona
+#Importar instancia de clase acceso
+from accesos import Acceso
+#Importar funciones usadas de database.py
+from database import main, insertar_usuario, obtener_usuarios, obtener_zonas, obtener_accesos, mostrar_usuarios
 
 def abrir_ventana(ventana):
     ventana_principal.withdraw()  # Ocultar ventana principal
@@ -9,16 +17,32 @@ def volver_a_principal(ventana):
     ventana.withdraw()            # Ocultar ventana actual
     ventana_principal.deiconify() # Mostrar ventana principal
 
+#Funcion para agregar usuario a la base de datos
 def agregar_usuario():
     nombre = entry_nombre.get()
     cargo = entry_cargo.get()
     identificacion = entry_identificacion.get()
 
-    if nombre and cargo and identificacion:
-        tree.insert('', 'end', values=(nombre, cargo, identificacion))
-        entry_nombre.delete(0, 'end')
-        entry_cargo.delete(0, 'end')
-        entry_identificacion.delete(0, 'end')
+    #Agregar usuario a la base de datos
+    usuario = Usuario(identificacion, nombre, cargo)
+    insertar_usuario(usuario)
+
+    #Actualizar tabla de usuarios
+    actualizar_tabla_usuarios()
+
+    #if nombre and cargo and identificacion:
+    #    tree.insert('', 'end', values=(nombre, cargo, identificacion))
+    #    entry_nombre.delete(0, 'end')
+    #    entry_cargo.delete(0, 'end')
+    #    entry_identificacion.delete(0, 'end')
+
+#Funcion para actualizar la tabla de usuarios
+def actualizar_tabla_usuarios():
+    usuarios = obtener_usuarios()
+    #Imprimir usuarios en consola
+    tree.delete(*tree.get_children())
+    for usuario in usuarios:
+        tree.insert('', 'end', values=(usuario.nombre, usuario.rol, usuario.id))
 
 def agregar_zona():
     nombre_granja = entry_nombre_granja_zona.get()
@@ -30,6 +54,10 @@ def agregar_zona():
         entry_nombre_granja_zona.delete(0, 'end')
         entry_nombre_zona.delete(0, 'end')
         entry_codigo_zona.delete(0, 'end')
+
+
+# Inicializar base de datos
+main()
 
 ventana_principal = tk.Tk()
 ventana_principal.geometry("1024x728")
@@ -90,6 +118,8 @@ tree.heading("Nombre", text="Nombre")
 tree.heading("Cargo", text="Cargo")
 tree.heading("Número de Identificación", text="Número de Identificación")
 tree.pack()
+#Actualizar tabla de usuarios
+actualizar_tabla_usuarios()
 
 boton_volver_usuario = tk.Button(ventana_ingreso_usuario, text="Volver", command=lambda: volver_a_principal(ventana_ingreso_usuario))
 boton_volver_usuario.pack(pady=20)

@@ -6,16 +6,26 @@ from zonas import Zona
 from usuarios import Usuario
 from accesos import Acceso
 
+# Asignar variables globales para conexion a base de datos
+global db_name, conn
+
+db_name = ""
+conn = None
+
 #------------------------------------------------------------
 # Inicialización de la base de datos	
 #------------------------------------------------------------
 
-def drop_tables(conn):
+def drop_tables():
+    global db_name
+    conn = sqlite3.connect(db_name)
     conn.execute('DROP TABLE IF EXISTS usuarios')
     conn.execute('DROP TABLE IF EXISTS zonas')
     conn.execute('DROP TABLE IF EXISTS accesos')
 
-def create_tables(conn):
+def create_tables():
+    global db_name
+    conn = sqlite3.connect(db_name)
     conn.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
             id TEXT PRIMARY KEY,
@@ -41,8 +51,8 @@ def create_tables(conn):
             id_usuario TEXT,
             id_zona TEXT,
             fecha_acceso TEXT,
-            bandera_entrada_salida TEXT CHECK (bandera_entrada_salida IN ('entrada', 'salida'))
-            estado_acceso TEXT CHECK (estado_acceso IN ('aceptado', 'denegado'))
+            bandera_entrada_salida TEXT CHECK (bandera_entrada_salida IN ('entrada', 'salida')),
+            estado_acceso TEXT CHECK (estado_acceso IN ('aceptado', 'denegado')),
             FOREIGN KEY (id_usuario) REFERENCES usuarios(id),
             FOREIGN KEY (id_zona) REFERENCES zonas(id)
         )
@@ -52,19 +62,22 @@ def create_tables(conn):
 # Funciones para insertar datos en la base de datos
 #------------------------------------------------------------
 
-def insertar_usuario(conn, usuario):
+def insertar_usuario(usuario):
+    global conn
     conn.execute('''
         INSERT INTO usuarios (id, nombre, rol)
-        VALUES (?, ?, ?, ?)
-    ''', (usuario.id, usuario.nombre, usuario.rol, ', '.join(usuario.zonas_permiso)))
+        VALUES (?, ?, ?)
+    ''', (usuario.id, usuario.nombre, usuario.rol))
 
-def insertar_zona(conn, zona):
+def insertar_zona(zona):
+    global conn
     conn.execute('''
         INSERT INTO zonas (id, nombre, descripcion, animales, restricciones, roles_permitidos)
         VALUES (?, ?, ?, ?, ?, ?)
     ''', (zona.id, zona.nombre, zona.descripcion, ', '.join(zona.animales), ', '.join(zona.restricciones), ', '.join(zona.acceso_usuarios)))
 
-def insertar_acceso(conn, acceso):
+def insertar_acceso(acceso):
+    global conn
     conn.execute('''
         INSERT INTO accesos (id_usuario, id_zona, fecha_acceso, bandera_entrada_salida, estado_acceso)
         VALUES (?, ?, ?, ?, ?)
@@ -76,8 +89,8 @@ def insertar_acceso(conn, acceso):
 # Datos de usuarios y zonas
 #------------------------------------------------------------
 
-def cargar_datos_usuarios(db_name, excel_file):
-    conn = sqlite3.connect(db_name)
+def cargar_datos_usuarios(excel_file):
+    global db_name,conn
 
     try:
         # Lee el archivo Excel
@@ -100,8 +113,8 @@ def cargar_datos_usuarios(db_name, excel_file):
     finally:
         conn.close()
 
-def cargar_datos_zonas(db_name, excel_file):
-    conn = sqlite3.connect(db_name)
+def cargar_datos_zonas(excel_file):
+    global db_name, conn
 
     try:
         # Lee el archivo Excel
@@ -131,7 +144,8 @@ def cargar_datos_zonas(db_name, excel_file):
 # Funciones para mostrar datos de la base de datos
 #------------------------------------------------------------
 
-def mostrar_usuarios(conn):
+def mostrar_usuarios():
+    global conn
     cursor = conn.cursor()
 
     # Fetch data from usuarios table
@@ -141,7 +155,8 @@ def mostrar_usuarios(conn):
     for row in usuarios_data:
         print(row)
 
-def mostrar_zonas(conn):
+def mostrar_zonas():
+    global conn
     cursor = conn.cursor()
 
     # Fetch data from zonas table
@@ -151,7 +166,8 @@ def mostrar_zonas(conn):
     for row in zonas_data:
         print(row)
 
-def mostrar_accesos(conn):
+def mostrar_accesos():
+    global db_name,conn
     cursor = conn.cursor()
 
     # Fetch data from accesos table
@@ -166,7 +182,8 @@ def mostrar_accesos(conn):
 # Funciones para obtener en sus clases los datos de la base de datos
 #------------------------------------------------------------
 
-def obtener_usuarios(conn):
+def obtener_usuarios():
+    global db_name, conn
     cursor = conn.cursor()
 
     # Fetch data from usuarios table
@@ -182,7 +199,8 @@ def obtener_usuarios(conn):
         usuarios.append(usuario)
     return usuarios
 
-def obtener_zonas(conn):
+def obtener_zonas():
+    global db_name, conn
     cursor = conn.cursor()
 
     # Fetch data from zonas table
@@ -201,7 +219,8 @@ def obtener_zonas(conn):
         zonas.append(zona)
     return zonas
 
-def obtener_accesos(conn):
+def obtener_accesos():
+    global db_name, conn
     cursor = conn.cursor()
 
     # Fetch data from accesos table
@@ -237,6 +256,7 @@ def seleccionar_archivo_excel():
 
 def main():
 
+    global db_name, conn
     # Prompt user for the name of the place and the database filename
     db_filename = input("Enter the desired database filename (without extension): ")  
     db_name = f"{db_filename}.db"  
@@ -245,25 +265,36 @@ def main():
     # Enable FOREIGN KEY constraint enforcement
     conn.execute('PRAGMA foreign_keys = ON;')
 
-    create_tables(conn)
+    create_tables()
+
+    # Prueba insertar y leer usuarios
+    usuario1 = Usuario("1", "Juan", "empleado")
+    usuario2 = Usuario("2", "Pedro", "invitado")
+    usuario3 = Usuario("3", "María", "empleado")
+
+    insertar_usuario(usuario1)
+    insertar_usuario(usuario2)
+    insertar_usuario(usuario3)
+
+    mostrar_usuarios()
 
     # Utiliza el diálogo de selección de archivos para obtener la ruta del archivo Excel de usuarios
-    print("Selecciona el archivo Excel de usuarios")
-    excel_file_usuarios = seleccionar_archivo_excel()
+    #print("Selecciona el archivo Excel de usuarios")
+    #excel_file_usuarios = seleccionar_archivo_excel()
 
-    if excel_file_usuarios:
-        cargar_datos_usuarios(db_name, excel_file_usuarios)
+    #if excel_file_usuarios:
+    #    cargar_datos_usuarios(excel_file_usuarios)
 
         # Utiliza el diálogo de selección de archivos para obtener la ruta del archivo Excel de zonas
-        print("Selecciona el archivo Excel de zonas")
-        excel_file_zonas = seleccionar_archivo_excel()
+    #    print("Selecciona el archivo Excel de zonas")
+    #    excel_file_zonas = seleccionar_archivo_excel()
 
-        if excel_file_zonas:
-            cargar_datos_zonas(db_name, excel_file_zonas)
+    #    if excel_file_zonas:
+    #        cargar_datos_zonas(excel_file_zonas)
 
 
-    conn.commit()
-    conn.close()
+    #conn.commit()
+    #conn.close()
 
 if __name__ == "__main__":
     main()
